@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBox</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TEMAS ── */
+body.dark{
+  --bg:#0e0e10;--bg2:#161618;--bg3:#1e1e21;--bg4:#26262a;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --text:#f0f0f0;--text2:#9999a8;--text3:#44444e;
+  --card-bg:#161618;--editor-bg:#1e1e21;--editor-text:#f0f0f0;
+}
+body.light{
+  --bg:#f4f4f7;--bg2:#ffffff;--bg3:#f0f0f4;--bg4:#e4e4ea;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --text:#1a1a2e;--text2:#555566;--text3:#aaaabc;
+  --card-bg:#ffffff;--editor-bg:#ffffff;--editor-text:#1a1a2e;
+}
+body{
+  --accent:#7c6aff;--accent2:#a98cff;--abg:rgba(124,106,255,0.12);--aborder:rgba(124,106,255,0.3);
+  --green:#3ecf8e;--gbg:rgba(62,207,142,0.1);
+  --amber:#f59e0b;--wbg:rgba(245,158,11,0.1);
+  --red:#f43f5e;--rbg:rgba(244,63,94,0.1);
+  --blue:#38bdf8;--bbg:rgba(56,189,248,0.1);
+  --pink:#ec4899;--pbg:rgba(236,72,153,0.1);
+  --teal:#2dd4bf;--tbg:rgba(45,212,191,0.1);
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;font-size:14px;line-height:1.6;overflow:hidden;
+  transition:background .2s,color .2s;
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
+
+/* ── LAYOUT ── */
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+#sb{width:240px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:width .25s;overflow:hidden}
+#sb.mini{width:56px;min-width:56px}
+.sb-top{padding:16px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;flex-shrink:0}
+.logo-txt{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;white-space:nowrap}
+#sb.mini .logo-txt{display:none}
+.sb-years{padding:10px 12px;border-bottom:1px solid var(--border)}
+.sb-lbl{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+#sb.mini .sb-lbl{display:none}
+.ypills{display:flex;flex-wrap:wrap;gap:4px}
+#sb.mini .ypills{flex-direction:column}
+.ypill{padding:3px 9px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+#sb.mini .ypill{padding:3px 5px;font-size:10px}
+.ypill:hover{border-color:var(--aborder);color:var(--accent2)}
+.ypill.on{background:var(--abg);border-color:var(--aborder);color:var(--accent2)}
+.sb-nav{flex:1;padding:8px;overflow-y:auto}
+.sb-sec{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.1em;padding:0 8px;margin:10px 0 4px}
+#sb.mini .sb-sec{display:none}
+.nb{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .15s;color:var(--text2);border:1px solid transparent;margin-bottom:2px;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:13px}
+.nb:hover{background:var(--bg3);color:var(--text)}
+.nb.on{background:var(--abg);color:var(--accent2);border-color:var(--aborder)}
+.ni{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+.nl{white-space:nowrap;flex:1}
+#sb.mini .nl{display:none}
+.nchip{font-size:10px;padding:1px 6px;border-radius:99px;background:var(--abg);color:var(--accent2)}
+#sb.mini .nchip{display:none}
+.sb-foot{padding:8px;border-top:1px solid var(--border)}
+
+/* ── TOPBAR ── */
+#topbar{height:52px;min-height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px}
+.tbtn{width:30px;height:30px;border-radius:7px;background:transparent;border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .15s;font-family:'DM Sans',sans-serif}
+.tbtn:hover{background:var(--bg3);color:var(--text)}
+.bc{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);flex:1;min-width:0}
+.bc .cur{color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tba{display:flex;gap:8px;flex-shrink:0;align-items:center}
+
+/* ── BOTONES ── */
+.btn{padding:6px 13px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--bg3);color:var(--text2)}
+.btn:hover{background:var(--bg4);color:var(--text)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn.sm{padding:4px 10px;font-size:12px}
+.btn.red{border-color:var(--red);color:var(--red);background:transparent}
+.btn.red:hover{background:var(--rbg)}
+
+/* ── MAIN ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#content{flex:1;overflow-y:auto;padding:22px}
+.view{display:none}.view.on{display:block}
+
+/* ── TIPOGRAFÍA ── */
+.ptitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px}
+.psub{color:var(--text2);font-size:13px;margin-bottom:22px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.psub:hover{color:var(--accent2)}
+.stitle{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.stitle::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── STATS ── */
+.srow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:22px}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px}
+.sn{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;margin-bottom:2px}
+.sl{font-size:11px;color:var(--text2)}
+.scard.p .sn{color:var(--accent2)}.scard.g .sn{color:var(--green)}.scard.a .sn{color:var(--amber)}.scard.b .sn{color:var(--blue)}
+
+/* ── MATERIAS ── */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:22px}
+.mcard{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:13px 13px 0 0}
+.mcard.purple::before{background:var(--accent)}.mcard.green::before{background:var(--green)}
+.mcard.amber::before{background:var(--amber)}.mcard.blue::before{background:var(--blue)}
+.mcard.pink::before{background:var(--pink)}.mcard.teal::before{background:var(--teal)}
+.mcard:hover{border-color:var(--border2);background:var(--bg3);transform:translateY(-2px)}
+.mic{font-size:22px;margin-bottom:8px}
+.mnm{font-family:'Syne',sans-serif;font-weight:600;font-size:13px;margin-bottom:3px}
+.mmt{font-size:11px;color:var(--text2);margin-bottom:8px}
+.mbar{height:3px;background:var(--bg4);border-radius:99px;margin-bottom:4px}
+.mfill{height:3px;border-radius:99px}
+.mcard.purple .mfill{background:var(--accent)}.mcard.green .mfill{background:var(--green)}
+.mcard.amber .mfill{background:var(--amber)}.mcard.blue .mfill{background:var(--blue)}
+.mcard.pink .mfill{background:var(--pink)}.mcard.teal .mfill{background:var(--teal)}
+.mprog{font-size:10px;color:var(--text3)}
+
+/* ── DETALLE ── */
+.mhdr{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.mhic{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;cursor:pointer}
+.mhic.purple{background:var(--abg)}.mhic.green{background:var(--gbg)}.mhic.amber{background:var(--wbg)}
+.mhic.blue{background:var(--bbg)}.mhic.pink{background:var(--pbg)}.mhic.teal{background:var(--tbg)}
+.mhi{flex:1;min-width:0}
+.mhi h1{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.mhi p{color:var(--text2);font-size:12px;margin-top:2px}
+.mhact{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+/* ── CLASES ── */
+.clist{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.crow{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:11px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:11px}
+.crow:hover{border-color:var(--border2);background:var(--bg3)}
+.crow.on{border-color:var(--aborder);background:var(--abg)}
+.cnum{width:28px;height:28px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0}
+.crow.on .cnum{background:var(--abg);color:var(--accent2);border-color:var(--aborder)}
+.cinf{flex:1;min-width:0}
+.ctit{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cdat{font-size:11px;color:var(--text2)}
+.ctags{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--bg4);color:var(--text2);border:1px solid var(--border)}
+
+/* ── EDITOR ── */
+.epanel{background:var(--bg2);border:1px solid var(--border);border-radius:13px;margin-bottom:14px;overflow:hidden}
+.etb{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;gap:3px;flex-wrap:wrap;align-items:center;background:var(--bg2)}
+.tool{padding:3px 7px;border-radius:5px;border:1px solid transparent;background:transparent;color:var(--text2);font-size:12px;cursor:pointer;transition:all .12s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:3px}
+.tool:hover{background:var(--bg4);color:var(--text);border-color:var(--border)}
+.tsep{width:1px;height:16px;background:var(--border);margin:0 2px;flex-shrink:0}
+.esel{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:5px;padding:3px 6px;font-size:11px;cursor:pointer;outline:none;font-family:'DM Sans',sans-serif}
+.editor{padding:18px;min-height:200px;font-size:14px;line-height:1.9;outline:none;white-space:pre-wrap;transition:background .2s,color .2s}
+.editor:empty::before{content:attr(placeholder);color:var(--text3)}
+.editor img{max-width:100%;border-radius:8px;margin:8px 0;display:block;cursor:pointer;border:2px solid transparent;transition:border-color .15s}
+.editor img:hover{border-color:var(--accent)}
+.efoot{padding:7px 12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg2)}
+.ss{font-size:11px;color:var(--text3)}
+
+/* ── IA ── */
+.iapanel{background:var(--bg2);border:1px solid var(--aborder);border-radius:13px;margin-bottom:14px;overflow:hidden}
+.iahead{padding:10px 14px;background:var(--abg);border-bottom:1px solid var(--aborder);display:flex;align-items:center;gap:8px}
+.iadot{width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.iatit{font-size:13px;font-weight:500;color:var(--accent2)}
+.iasub{font-size:11px;color:var(--text2);margin-left:auto}
+.iamsgs{padding:12px;display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto}
+.iamsg{display:flex;gap:8px}
+.iamsg.me{flex-direction:row-reverse}
+.iaav{width:26px;height:26px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.iaav.bot{background:var(--abg);color:var(--accent2)}.iaav.me{background:var(--bg4);color:var(--text2)}
+.iabub{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:13px;line-height:1.6;max-width:82%}
+.iamsg.me .iabub{background:var(--abg);border-color:var(--aborder)}
+.iaqrow{padding:0 12px 8px;display:flex;gap:5px;flex-wrap:wrap}
+.iaq{font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--aborder);background:var(--abg);color:var(--accent2);cursor:pointer;transition:all .12s;font-family:'DM Sans',sans-serif}
+.iaq:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.iainrow{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:7px}
+.iainp{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:7px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.iainp:focus{border-color:var(--aborder)}
+.iasnd{width:34px;height:34px;border-radius:7px;background:var(--accent);border:none;color:#fff;cursor:pointer;font-size:14px;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.iasnd:hover{background:var(--accent2)}
+.iatyp{display:flex;align-items:center;gap:3px;padding:2px 0}
+.iatyp span{width:5px;height:5px;border-radius:50%;background:var(--accent2);animation:typ 1.2s infinite}
+.iatyp span:nth-child(2){animation-delay:.2s}.iatyp span:nth-child(3){animation-delay:.4s}
+@keyframes typ{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+
+/* ── CALENDARIO ── */
+.calnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.calbtns{display:flex;align-items:center;gap:8px}
+.calbtn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif}
+.calbtn:hover{background:var(--bg4);color:var(--text)}
+.calml{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:20px}
+.caldn{text-align:center;font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:5px 0}
+.calcell{min-height:72px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:5px;cursor:pointer;transition:all .15s}
+.calcell:hover{border-color:var(--border2);background:var(--bg3)}
+.calcell.other{opacity:.3}.calcell.today{border-color:var(--aborder);background:var(--abg)}
+.calnum{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:3px;display:block}
+.calcell.today .calnum{color:var(--accent2);font-weight:700}
+.calpill{font-size:9px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;font-weight:500;cursor:pointer}
+.calpill.parcial{background:var(--rbg);color:var(--red)}.calpill.final{background:var(--pbg);color:var(--pink)}
+.calpill.tp{background:var(--wbg);color:var(--amber)}.calpill.recuperatorio{background:var(--bbg);color:var(--blue)}
+.calpill.otro{background:var(--gbg);color:var(--green)}
+.calbot{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.proxlist{display:flex;flex-direction:column;gap:7px}
+.proxitem{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:10px}
+.proxitem.urg{border-color:var(--red)}.proxitem.warn{border-color:var(--amber)}
+.proxdays{min-width:40px;text-align:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.proxdays.urg{color:var(--red)}.proxdays.warn{color:var(--amber)}.proxdays.ok{color:var(--green)}
+.proxinfo{flex:1;min-width:0}
+.proxname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proxmeta{font-size:11px;color:var(--text2)}
+.proxdel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:3px;flex-shrink:0}
+.proxdel:hover{color:var(--red)}
+.tbadge{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:500}
+.tbadge.parcial{background:var(--rbg);color:var(--red)}.tbadge.final{background:var(--pbg);color:var(--pink)}
+.tbadge.tp{background:var(--wbg);color:var(--amber)}.tbadge.recuperatorio{background:var(--bbg);color:var(--blue)}
+.tbadge.otro{background:var(--gbg);color:var(--green)}
+.restipo{display:flex;flex-direction:column;gap:7px}
+.resrow{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:9px 13px}
+.resn{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text2)}
+
+/* ── SETTINGS ── */
+.ssec{margin-bottom:24px}
+.ssec h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;margin-bottom:12px}
+.sitem{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:7px}
+.sinf{flex:1}.stit{font-size:13px;font-weight:500}.sdesc{font-size:11px;color:var(--text2)}
+
+/* ── APUNTES ── */
+.arow{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:12px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:12px;margin-bottom:7px}
+.arow:hover{border-color:var(--border2);background:var(--bg3)}
+
+/* ── MODAL ── */
+.ov{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);align-items:center;justify-content:center}
+.ov.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:26px;width:460px;max-width:94vw;animation:mIn .2s ease;max-height:90vh;overflow-y:auto}
+@keyframes mIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:16px}
+.fg{margin-bottom:13px}
+.fl{font-size:11px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--aborder)}
+select.fi{appearance:none;cursor:pointer}
+.crow2{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
+.cdot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.cdot:hover,.cdot.on{border-color:#fff;transform:scale(1.1)}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:36px 20px;color:var(--text3)}
+.emptyic{font-size:36px;margin-bottom:10px}
+.empty p{font-size:13px;color:var(--text2);margin-bottom:14px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;right:18px;z-index:300;background:var(--bg2);border:1px solid var(--green);color:var(--green);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:500;display:none}
+
+/* ── THEME TOGGLE ── */
+.theme-btn{font-size:16px;padding:0;width:30px;height:30px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:680px){
+  #sb{width:56px;min-width:56px}
+  .logo-txt,.nl,.nchip,.sb-lbl,.sb-sec{display:none!important}
+  #content{padding:14px}
+  .mgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .calbot{grid-template-columns:1fr}
+  .calcell{min-height:50px}
+}
+</style>
+</head>
+<body class="dark">
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <nav id="sb">
+    <div class="sb-top">
+      <div class="logo">SB</div>
+      <span class="logo-txt">StudyBox</span>
+    </div>
+    <div class="sb-years">
+      <div class="sb-lbl">Año activo</div>
+      <div class="ypills" id="yp"></div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">Principal</div>
+      <button class="nb" id="nb-home" onclick="go('home')"><span class="ni">⌂</span><span class="nl">Inicio</span></button>
+      <button class="nb" id="nb-materias" onclick="go('materias')"><span class="ni">◈</span><span class="nl">Materias</span><span class="nchip" id="chipM">0</span></button>
+      <button class="nb" id="nb-apuntes" onclick="go('apuntes')"><span class="ni">✎</span><span class="nl">Mis apuntes</span></button>
+      <button class="nb" id="nb-ia" onclick="go('ia')"><span class="ni">✦</span><span class="nl">IA Asistente</span></button>
+      <button class="nb" id="nb-cal" onclick="go('cal')"><span class="ni">▦</span><span class="nl">Calendario</span><span class="nchip" id="chipC"></span></button>
+      <div class="sb-sec">Sistema</div>
+      <button class="nb" id="nb-cfg" onclick="go('cfg')"><span class="ni">⚙</span><span class="nl">Configuración</span></button>
+    </div>
+    <div class="sb-foot">
+      <button class="nb" onclick="om('mat')"><span class="ni">＋</span><span class="nl">Nueva materia</span></button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <button class="tbtn" onclick="toggleSB()">☰</button>
+      <div class="bc"><span>StudyBox</span><span>›</span><span class="cur" id="crumb">Inicio</span></div>
+      <div class="tba">
+        <button class="tbtn theme-btn" id="themeBtn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+        <button class="btn sm" onclick="exportar()">⤓ Exportar</button>
+        <button class="btn pri sm" onclick="om('mat')">+ Materia</button>
+      </div>
+    </div>
+    <div id="content">
+
+      <!-- HOME -->
+      <div class="view" id="v-home">
+        <p class="ptitle" id="greeting">Hola 👋</p>
+        <p class="psub" id="homesub" onclick="editCarrera()">— <span style="font-size:11px;opacity:.5">✏</span></p>
+        <div class="srow">
+          <div class="scard p"><div class="sn" id="sM">0</div><div class="sl">Materias</div></div>
+          <div class="scard g"><div class="sn" id="sC">0</div><div class="sl">Clases</div></div>
+          <div class="scard a"><div class="sn" id="sA">0</div><div class="sl">Apuntes</div></div>
+          <div class="scard b"><div class="sn" id="sY">—</div><div class="sl">Año activo</div></div>
+        </div>
+        <div class="stitle">Mis materias</div>
+        <div class="mgrid" id="hGrid"></div>
+      </div>
+
+      <!-- MATERIAS -->
+      <div class="view" id="v-materias">
+        <div class="stitle">Todas las materias</div>
+        <div class="mgrid" id="mGrid"></div>
+      </div>
+
+      <!-- DETALLE -->
+      <div class="view" id="v-det"><div id="detC"></div></div>
+
+      <!-- APUNTES -->
+      <div class="view" id="v-apuntes">
+        <div class="stitle">Todos mis apuntes</div>
+        <div id="aptList"></div>
+      </div>
+
+      <!-- IA -->
+      <div class="view" id="v-ia">
+        <div class="stitle">IA Asistente</div>
+        <div class="iapanel">
+          <div class="iahead"><div class="iadot"></div><span class="iatit">StudyBox AI</span><span class="iasub">Asistente de estudio · Groq LLaMA 3</span></div>
+          <div class="iamsgs" id="gChat">
+            <div class="iamsg"><div class="iaav bot">✦</div><div class="iabub">¡Hola! Soy tu asistente. Puedo resumir clases, explicar conceptos o crear ejercicios. Para activarme configurá tu API key de Groq en ⚙ Configuración (es gratis).</div></div>
+          </div>
+          <div class="iaqrow">
+            <button class="iaq" onclick="qG('Resumí mis últimas clases')">Resumir clases</button>
+            <button class="iaq" onclick="qG('Haceme un cuestionario de repaso')">Cuestionario</button>
+            <button class="iaq" onclick="qG('Tips para estudiar antes de un parcial')">Tips de repaso</button>
+          </div>
+          <div class="iainrow">
+            <input class="iainp" id="gInp" placeholder="Preguntá lo que quieras..." onkeydown="if(event.key==='Enter')sGlobal()">
+            <button class="iasnd" onclick="sGlobal()">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDARIO -->
+      <div class="view" id="v-cal"><div id="calC"></div></div>
+
+      <!-- CONFIG -->
+      <div class="view" id="v-cfg">
+        <div class="stitle">Configuración</div>
+        <div class="ssec">
+          <h3>Mi perfil</h3>
+          <div class="sitem"><div class="sinf"><div class="stit">Nombre</div><div class="sdesc" id="cfgNombre">—</div></div><button class="btn sm" onclick="editNombre()">Editar</button></div>
+          <div class="sitem"><div class="sinf"><div class="stit">Carrera</div><div class="sdesc" id="cfgCarrera">—</div></div><button class="btn sm" onclick="editCarrera()">Editar</button></div>
+          <div class="sitem"><div class="sinf"><div class="stit">Años académicos</div><div class="sdesc" id="cfgAnios">—</div></div><button class="btn sm" onclick="om('anio')">+ Año</button></div>
+          <div class="sitem"><div class="sinf"><div class="stit">Copiar materias del año anterior</div><div class="sdesc">Copia las materias al año activo</div></div><button class="btn sm" onclick="copiarAnio()">Copiar ↗</button></div>
+        </div>
+        <div class="ssec">
+          <h3>Inteligencia Artificial</h3>
+          <div class="sitem" style="flex-direction:column;align-items:flex-start;gap:10px">
+            <div class="sinf">
+              <div class="stit">Groq API Key <span style="font-size:10px;background:var(--gbg);color:var(--green);padding:2px 7px;border-radius:99px;margin-left:6px">Gratis</span></div>
+              <div class="sdesc">Entrá a <strong>console.groq.com</strong> → API Keys → Create. Tarda 2 minutos y es gratis.</div>
+            </div>
+            <div style="display:flex;gap:8px;width:100%">
+              <input class="fi" id="keyInp" type="password" placeholder="gsk_..." style="flex:1;font-family:monospace;font-size:12px">
+              <button class="btn pri sm" onclick="saveKey()">Guardar</button>
+              <button class="btn sm" onclick="testKey()">Probar</button>
+            </div>
+            <div id="keyStatus" style="font-size:12px;color:var(--text3)"></div>
+          </div>
+        </div>
+        <div class="ssec">
+          <h3>Apariencia</h3>
+          <div class="sitem">
+            <div class="sinf"><div class="stit">Tema</div><div class="sdesc" id="cfgTema">Oscuro</div></div>
+            <button class="btn sm" onclick="toggleTheme()">Cambiar</button>
+          </div>
+        </div>
+        <div class="ssec">
+          <h3>Datos</h3>
+          <div class="sitem"><div class="sinf"><div class="stit">Exportar todo</div><div class="sdesc">Descarga todos tus apuntes como .txt</div></div><button class="btn sm" onclick="exportar()">Exportar</button></div>
+          <div class="sitem"><div class="sinf"><div class="stit">Borrar todos los datos</div><div class="sdesc">No se puede deshacer.</div></div><button class="btn sm red" onclick="borrarTodo()">Borrar todo</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+<div class="ov" id="ov-mat">
+  <div class="modal">
+    <h2>Nueva materia</h2>
+    <div class="fg"><label class="fl">Nombre</label><input class="fi" id="mNom" placeholder="Ej: Física I, Cálculo..."></div>
+    <div class="fg"><label class="fl">Ícono (emoji)</label><input class="fi" id="mIco" placeholder="📚" maxlength="2" value="📚"></div>
+    <div class="fg"><label class="fl">Color</label>
+      <div class="crow2">
+        <div class="cdot on" style="background:#7c6aff" data-c="purple" onclick="pickC(this,'new')"></div>
+        <div class="cdot" style="background:#3ecf8e" data-c="green" onclick="pickC(this,'new')"></div>
+        <div class="cdot" style="background:#f59e0b" data-c="amber" onclick="pickC(this,'new')"></div>
+        <div class="cdot" style="background:#38bdf8" data-c="blue" onclick="pickC(this,'new')"></div>
+        <div class="cdot" style="background:#ec4899" data-c="pink" onclick="pickC(this,'new')"></div>
+        <div class="cdot" style="background:#2dd4bf" data-c="teal" onclick="pickC(this,'new')"></div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Año académico</label><select class="fi" id="mAnio"></select></div>
+    <div class="mfoot"><button class="btn" onclick="cm('mat')">Cancelar</button><button class="btn pri" onclick="addMat()">Crear</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ov-editmat">
+  <div class="modal">
+    <h2>Editar materia</h2>
+    <div class="fg"><label class="fl">Nombre</label><input class="fi" id="emNom" placeholder="Nombre de la materia"></div>
+    <div class="fg"><label class="fl">Ícono (emoji)</label><input class="fi" id="emIco" placeholder="📚" maxlength="2"></div>
+    <div class="fg"><label class="fl">Color</label>
+      <div class="crow2" id="emColors">
+        <div class="cdot" style="background:#7c6aff" data-c="purple" onclick="pickC(this,'edit')"></div>
+        <div class="cdot" style="background:#3ecf8e" data-c="green" onclick="pickC(this,'edit')"></div>
+        <div class="cdot" style="background:#f59e0b" data-c="amber" onclick="pickC(this,'edit')"></div>
+        <div class="cdot" style="background:#38bdf8" data-c="blue" onclick="pickC(this,'edit')"></div>
+        <div class="cdot" style="background:#ec4899" data-c="pink" onclick="pickC(this,'edit')"></div>
+        <div class="cdot" style="background:#2dd4bf" data-c="teal" onclick="pickC(this,'edit')"></div>
+      </div>
+    </div>
+    <div class="mfoot"><button class="btn" onclick="cm('editmat')">Cancelar</button><button class="btn pri" onclick="guardarEditMat()">Guardar cambios</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ov-clase">
+  <div class="modal">
+    <h2>Nueva clase</h2>
+    <div class="fg"><label class="fl">Título</label><input class="fi" id="cTit" placeholder="Ej: Clase 1 — Introducción"></div>
+    <div class="fg"><label class="fl">Fecha</label><input class="fi" type="date" id="cFec"></div>
+    <div class="fg"><label class="fl">Etiquetas (separadas por coma)</label><input class="fi" id="cTag" placeholder="Ej: teoría, fórmulas, parcial"></div>
+    <div class="mfoot"><button class="btn" onclick="cm('clase')">Cancelar</button><button class="btn pri" onclick="addClase()">Agregar</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ov-anio">
+  <div class="modal">
+    <h2>Nuevo año académico</h2>
+    <div class="fg"><label class="fl">Nombre del año</label><input class="fi" id="aNom" placeholder="Ej: 2° año, 2025"></div>
+    <div class="mfoot"><button class="btn" onclick="cm('anio')">Cancelar</button><button class="btn pri" onclick="addAnio()">Crear</button></div>
+  </div>
+</div>
+
+<div class="ov" id="ov-parcial">
+  <div class="modal">
+    <h2>Nuevo evento</h2>
+    <div class="fg"><label class="fl">Tipo</label>
+      <select class="fi" id="pTipo">
+        <option value="parcial">Parcial</option><option value="final">Final</option>
+        <option value="tp">Trabajo Práctico</option><option value="recuperatorio">Recuperatorio</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Materia</label><select class="fi" id="pMat"></select></div>
+    <div class="fg"><label class="fl">Descripción (opcional)</label><input class="fi" id="pDesc" placeholder="Ej: Unidades 1-3"></div>
+    <div class="fg"><label class="fl">Fecha</label><input class="fi" type="date" id="pFec"></div>
+    <div class="fg"><label class="fl">Hora (opcional)</label><input class="fi" type="time" id="pHor"></div>
+    <div class="fg"><label class="fl">Lugar (opcional)</label><input class="fi" id="pAul" placeholder="Ej: Aula 12"></div>
+    <div class="mfoot"><button class="btn" onclick="cm('parcial')">Cancelar</button><button class="btn pri" onclick="addParcial()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ STATE ══
+var S = {
+  nombre:'Estudiante', carrera:'Lic. en Gestión de la Tecnología de la Información',
+  anios:['1° año','2° año','3° año','4° año'], anioActivo:'1° año',
+  materias:[], clases:{}, apuntes:{}, parciales:[], editorCfg:{},
+  groqKey:'', tema:'dark', colorNew:'purple', colorEdit:'purple',
+  matActiva:null, claseActiva:null, editingMat:null
+};
+var calDate = new Date();
+
+function save(){ try{localStorage.setItem('sb3',JSON.stringify(S));}catch(e){} }
+function load(){
+  try{ var d=localStorage.getItem('sb3'); if(d){ var p=JSON.parse(d); for(var k in p) S[k]=p[k]; } }catch(e){}
+  if(!S.parciales) S.parciales=[];
+  if(!S.editorCfg) S.editorCfg={};
+  if(!S.tema) S.tema='dark';
+  if(!S.anios) S.anios=['1° año','2° año','3° año','4° año'];
+}
+
+// ══ BOOT ══
+load();
+if(!localStorage.getItem('sb3')) seedDemo();
+applyTheme();
+renderYears(); renderStats(); go('home');
+
+function seedDemo(){
+  S.carrera='Lic. en Gestión de la Tecnología de la Información';
+  var id='m1';
+  S.materias.push({id:id,nombre:'Electricidad y Circuitos',icon:'⚡',color:'purple',anio:'1° año'});
+  S.clases[id]=[
+    {id:'c1',titulo:'Clase 1 — Conceptos y Magnitudes',fecha:'2025-03-18',tags:['teoría','magnitudes']},
+    {id:'c2',titulo:'Clase 2 — Circuitos Serie y Paralelo',fecha:'2025-03-25',tags:['circuitos','Kirchhoff']}
+  ];
+  S.apuntes['m1_c1']='La corriente eléctrica es la transmisión de energía.\n\nLey de Ohm: I = V/R\nPotencia: P = V × I';
+  save();
+}
+
+// ══ TEMA ══
+function applyTheme(){
+  document.body.className = S.tema;
+  var btn = document.getElementById('themeBtn');
+  var cfg = document.getElementById('cfgTema');
+  if(btn) btn.textContent = S.tema==='dark' ? '☀️' : '🌙';
+  if(cfg) cfg.textContent = S.tema==='dark' ? 'Oscuro' : 'Claro';
+}
+function toggleTheme(){
+  S.tema = S.tema==='dark' ? 'light' : 'dark';
+  save(); applyTheme(); toast('Tema '+(S.tema==='dark'?'oscuro':'claro')+' ✓');
+}
+
+// ══ NAVEGACIÓN ══
+function go(v){
+  document.querySelectorAll('.view').forEach(function(e){e.classList.remove('on');});
+  var el=document.getElementById('v-'+v); if(!el) return;
+  el.classList.add('on');
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  var nb=document.getElementById('nb-'+v); if(nb) nb.classList.add('on');
+  var labels={home:'Inicio',materias:'Materias',det:'Materia',apuntes:'Apuntes',ia:'IA Asistente',cal:'Calendario',cfg:'Configuración'};
+  var cr=document.getElementById('crumb'); if(cr) cr.textContent=labels[v]||v;
+  if(v==='home') renderHome();
+  if(v==='materias') renderMats();
+  if(v==='apuntes') renderApuntes();
+  if(v==='cal') renderCal();
+  if(v==='cfg') renderCfg();
+}
+
+function toggleSB(){ document.getElementById('sb').classList.toggle('mini'); }
+
+// ══ AÑOS ══
+function renderYears(){
+  var c=document.getElementById('yp'); if(!c) return;
+  c.innerHTML=S.anios.map(function(a){
+    return '<button class="ypill'+(a===S.anioActivo?' on':'')+'" onclick="setAnio(\''+a+'\')">'+a+'</button>';
+  }).join('');
+}
+function setAnio(a){ S.anioActivo=a; S.matActiva=null; S.claseActiva=null; save(); renderYears(); renderStats(); go('home'); }
+function addAnio(){
+  var n=document.getElementById('aNom').value.trim(); if(!n) return;
+  if(S.anios.indexOf(n)===-1){ S.anios.push(n); S.anioActivo=n; }
+  save(); cm('anio'); document.getElementById('aNom').value='';
+  renderYears(); renderStats(); go('home'); toast('Año creado ✓');
+}
+
+// ══ STATS ══
+function renderStats(){
+  var mis=S.materias.filter(function(m){return m.anio===S.anioActivo;});
+  var tC=mis.reduce(function(s,m){return s+(S.clases[m.id]?S.clases[m.id].length:0);},0);
+  var tA=Object.keys(S.apuntes).filter(function(k){return S.apuntes[k]&&S.apuntes[k].trim();}).length;
+  st('sM',mis.length); st('sC',tC); st('sA',tA); st('sY',S.anioActivo);
+  st('chipM',mis.length);
+  var prox=S.parciales.filter(function(p){var d=Math.ceil((new Date(p.fecha+'T00:00:00')-new Date())/86400000);return d>=0&&d<=7;}).length;
+  var ch=document.getElementById('chipC'); if(ch) ch.textContent=prox>0?prox:'';
+}
+function st(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+
+// ══ HOME ══
+function renderHome(){
+  var h=new Date().getHours();
+  var sal=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  st('greeting',sal+', '+S.nombre+' 👋');
+  var sub=document.getElementById('homesub');
+  if(sub) sub.innerHTML=(S.carrera||'Sin carrera')+' · '+S.anioActivo+' <span style="font-size:11px;opacity:.5">✏</span>';
+  renderStats();
+  var mis=S.materias.filter(function(m){return m.anio===S.anioActivo;});
+  var g=document.getElementById('hGrid'); if(!g) return;
+  if(!mis.length){ g.innerHTML='<div class="empty"><div class="emptyic">📂</div><p>No tenés materias para este año.</p><button class="btn pri" onclick="om(\'mat\')">+ Primera materia</button></div>'; return; }
+  g.innerHTML=mis.map(mCard).join('');
+}
+
+// ══ MATERIAS ══
+function renderMats(){
+  var mis=S.materias.filter(function(m){return m.anio===S.anioActivo;});
+  var g=document.getElementById('mGrid'); if(!g) return;
+  if(!mis.length){ g.innerHTML='<div class="empty"><div class="emptyic">📂</div><p>No hay materias.</p><button class="btn pri" onclick="om(\'mat\')">+ Nueva</button></div>'; return; }
+  g.innerHTML=mis.map(mCard).join('');
+}
+
+function mCard(m){
+  var cls=(S.clases[m.id]||[]).length;
+  var prog=Math.min(100,cls*12);
+  return '<div class="mcard '+m.color+'" onclick="abrirMat(\''+m.id+'\')">'+
+    '<div class="mic">'+m.icon+'</div>'+
+    '<div class="mnm">'+m.nombre+'</div>'+
+    '<div class="mmt">'+cls+' clases · '+m.anio+'</div>'+
+    '<div class="mbar"><div class="mfill" style="width:'+prog+'%"></div></div>'+
+    '<div class="mprog">'+cls+' clases cargadas</div>'+
+    '</div>';
+}
+
+function addMat(){
+  var n=document.getElementById('mNom').value.trim(); if(!n){toast('Escribí un nombre');return;}
+  var ico=document.getElementById('mIco').value||'📚';
+  var anio=document.getElementById('mAnio').value;
+  var id='m_'+Date.now();
+  S.materias.push({id:id,nombre:n,icon:ico,color:S.colorNew,anio:anio});
+  save(); cm('mat'); document.getElementById('mNom').value='';
+  renderStats(); go('materias'); toast('Materia creada ✓');
+}
+
+function pickC(el,ctx){
+  var container = ctx==='edit' ? document.getElementById('emColors') : el.closest('.crow2');
+  container.querySelectorAll('.cdot').forEach(function(d){d.classList.remove('on');});
+  el.classList.add('on');
+  if(ctx==='edit') S.colorEdit=el.dataset.c;
+  else S.colorNew=el.dataset.c;
+}
+
+// ══ EDITAR MATERIA ══
+function abrirEditMat(id){
+  var m=S.materias.find(function(x){return x.id===id;});
+  if(!m) return;
+  S.editingMat=id; S.colorEdit=m.color;
+  document.getElementById('emNom').value=m.nombre;
+  document.getElementById('emIco').value=m.icon;
+  document.querySelectorAll('#emColors .cdot').forEach(function(d){d.classList.toggle('on',d.dataset.c===m.color);});
+  om('editmat');
+}
+
+function guardarEditMat(){
+  var m=S.materias.find(function(x){return x.id===S.editingMat;});
+  if(!m) return;
+  var n=document.getElementById('emNom').value.trim(); if(!n){toast('Escribí un nombre');return;}
+  m.nombre=n; m.icon=document.getElementById('emIco').value.trim().slice(0,2)||m.icon; m.color=S.colorEdit;
+  save(); cm('editmat'); renderDet(); renderStats();
+  var cr=document.getElementById('crumb'); if(cr) cr.textContent=m.nombre;
+  toast('Materia actualizada ✓');
+}
+
+function eliminarMat(id){
+  var m=S.materias.find(function(x){return x.id===id;});
+  if(!m||!confirm('¿Eliminar "'+m.nombre+'" y todos sus datos?')) return;
+  S.materias=S.materias.filter(function(x){return x.id!==id;});
+  delete S.clases[id];
+  Object.keys(S.apuntes).forEach(function(k){if(k.startsWith(id+'_')) delete S.apuntes[k];});
+  if(S.matActiva===id){S.matActiva=null;S.claseActiva=null;}
+  save(); renderStats(); go('materias'); toast('Materia eliminada');
+}
+
+// ══ DETALLE MATERIA ══
+function abrirMat(id){
+  S.matActiva=id; S.claseActiva=null; save();
+  renderDet(); go('det');
+  var m=S.materias.find(function(x){return x.id===id;});
+  var cr=document.getElementById('crumb'); if(cr&&m) cr.textContent=m.nombre;
+}
+
+function renderDet(){
+  var id=S.matActiva;
+  var m=S.materias.find(function(x){return x.id===id;});
+  if(!m) return;
+  var clases=S.clases[id]||[];
+  var c=document.getElementById('detC'); if(!c) return;
+
+  var clsHTML='';
+  if(!clases.length){
+    clsHTML='<div class="empty"><div class="emptyic">📝</div><p>Todavía no cargaste ninguna clase.</p><button class="btn pri" onclick="om(\'clase\')">+ Primera clase</button></div>';
+  } else {
+    clsHTML=clases.map(function(cl,i){
+      var on=S.claseActiva===cl.id?' on':'';
+      var tags=(cl.tags||[]).map(function(t){return '<span class="tag">'+t+'</span>';}).join('');
+      return '<div class="crow'+on+'" onclick="abrirClase(\''+id+'\',\''+cl.id+'\')">'
+        +'<div class="cnum">C'+(i+1)+'</div>'
+        +'<div class="cinf"><div class="ctit">'+cl.titulo+'</div><div class="cdat">'+(cl.fecha||'')+'</div><div class="ctags">'+tags+'</div></div>'
+        +'<button class="btn sm red" onclick="event.stopPropagation();delClase(\''+id+'\',\''+cl.id+'\')">✕</button>'
+        +'</div>';
+    }).join('');
+  }
+
+  var edHTML='';
+  if(S.claseActiva){
+    var cl=clases.find(function(x){return x.id===S.claseActiva;});
+    if(cl){
+      var key=id+'_'+S.claseActiva;
+      var txt=S.apuntes[key]||'';
+      var cfg=S.editorCfg[key]||{};
+      var ec='color:'+(cfg.color||'var(--editor-text)')+';background:'+(cfg.bg||'var(--editor-bg)')+';font-family:'+(cfg.font||'\'DM Sans\',sans-serif')+';font-size:'+(cfg.size||'14px')+';';
+      edHTML='<div class="stitle" style="margin-top:20px">Apuntes — '+cl.titulo+'</div>'
+        +'<div class="epanel">'
+        +'<div class="etb">'
+        +'<button class="tool" onclick="fmt(\'bold\')" title="Negrita"><b>N</b></button>'
+        +'<button class="tool" onclick="fmt(\'italic\')" title="Cursiva"><i>C</i></button>'
+        +'<button class="tool" onclick="fmt(\'underline\')" title="Subrayado"><u>S</u></button>'
+        +'<button class="tool" onclick="fmt(\'strikeThrough\')" title="Tachado"><s>T</s></button>'
+        +'<div class="tsep"></div>'
+        +'<button class="tool" onclick="ins(\'## \')">H1</button>'
+        +'<button class="tool" onclick="ins(\'### \')">H2</button>'
+        +'<button class="tool" onclick="ins(\'• \')">• Lista</button>'
+        +'<button class="tool" onclick="ins(\'1. \')">1. Lista</button>'
+        +'<div class="tsep"></div>'
+        +'<label title="Color de texto" style="display:flex;align-items:center;gap:3px;cursor:pointer;padding:3px 6px;border-radius:5px">'
+        +'<span style="font-weight:700;font-size:14px;color:var(--text2)">A</span>'
+        +'<input type="color" id="txtCol" value="'+(cfg.color||'#f0f0f0')+'" style="width:20px;height:20px;border:none;background:none;cursor:pointer;padding:0;border-radius:3px" onchange="chColor(this.value,\''+key+'\')">'
+        +'</label>'
+        +'<label title="Color de fondo" style="display:flex;align-items:center;gap:3px;cursor:pointer;padding:3px 6px;border-radius:5px">'
+        +'<span style="font-size:13px;color:var(--text2)">▣</span>'
+        +'<input type="color" id="bgCol" value="'+(cfg.bg||'#1e1e21')+'" style="width:20px;height:20px;border:none;background:none;cursor:pointer;padding:0;border-radius:3px" onchange="chBg(this.value,\''+key+'\')">'
+        +'</label>'
+        +'<div class="tsep"></div>'
+        +'<select class="esel" title="Fuente" onchange="chFont(this.value,\''+key+'\')">'
+        +'<option value="\'DM Sans\',sans-serif"'+(cfg.font==="'DM Sans',sans-serif"||!cfg.font?' selected':'')+'>DM Sans</option>'
+        +'<option value="Georgia,serif"'+(cfg.font==='Georgia,serif'?' selected':'')+'>Georgia</option>'
+        +'<option value="\'Courier New\',monospace"'+(cfg.font==="'Courier New',monospace"?' selected':'')+'>Monospace</option>'
+        +'<option value="Arial,sans-serif"'+(cfg.font==='Arial,sans-serif'?' selected':'')+'>Arial</option>'
+        +'</select>'
+        +'<select class="esel" title="Tamaño" onchange="chSize(this.value,\''+key+'\')">'
+        +'<option value="12px"'+(cfg.size==='12px'?' selected':'')+'>12</option>'
+        +'<option value="14px"'+(cfg.size==='14px'||!cfg.size?' selected':'')+'>14</option>'
+        +'<option value="16px"'+(cfg.size==='16px'?' selected':'')+'>16</option>'
+        +'<option value="18px"'+(cfg.size==='18px'?' selected':'')+'>18</option>'
+        +'<option value="20px"'+(cfg.size==='20px'?' selected':'')+'>20</option>'
+        +'<option value="24px"'+(cfg.size==='24px'?' selected':'')+'>24</option>'
+        +'</select>'
+        +'<div class="tsep"></div>'
+        +'<button class="tool" onclick="insertImg()" title="Insertar imagen">🖼 Imagen</button>'
+        +'<input type="file" id="imgInp" accept="image/*" style="display:none" onchange="onImg(this,\''+key+'\')">'
+        +'<div class="tsep"></div>'
+        +'<button class="tool" onclick="copiarEd()">Copiar</button>'
+        +'<button class="tool" onclick="limpiarEd(\''+key+'\')">Limpiar</button>'
+        +'</div>'
+        +'<div class="editor" id="editor" contenteditable="true" placeholder="Empezá a escribir tus apuntes..." style="'+ec+'" oninput="autoSave(\''+key+'\')" onpaste="onPaste(event,\''+key+'\')">'+txt+'</div>'
+        +'<div class="efoot"><span class="ss" id="ss">Guardado automático activado</span><button class="btn pri sm" onclick="copiarEd()">Copiar para Word</button></div>'
+        +'</div>'
+        +renderIA(cl);
+    }
+  }
+
+  c.innerHTML='<div class="mhdr">'
+    +'<div class="mhic '+m.color+'" onclick="abrirEditMat(\''+id+'\')" title="Click para editar">'+m.icon+'</div>'
+    +'<div class="mhi"><h1>'+m.nombre+'</h1><p>'+m.anio+' · '+clases.length+' clases</p></div>'
+    +'<div class="mhact">'
+    +'<button class="btn sm" onclick="abrirEditMat(\''+id+'\')">✏ Editar</button>'
+    +'<button class="btn sm" onclick="om(\'clase\')">+ Nueva clase</button>'
+    +'<button class="btn sm red" onclick="eliminarMat(\''+id+'\')">✕ Eliminar</button>'
+    +'</div></div>'
+    +'<div class="stitle">Clases</div>'
+    +'<div class="clist">'+clsHTML+'</div>'
+    +edHTML;
+}
+
+function renderIA(cl){
+  return '<div class="iapanel">'
+    +'<div class="iahead"><div class="iadot"></div><span class="iatit">IA para esta clase</span><span class="iasub">'+cl.titulo+'</span></div>'
+    +'<div class="iamsgs" id="cChat"><div class="iamsg"><div class="iaav bot">✦</div><div class="iabub">Listo para ayudarte con <strong>'+cl.titulo+'</strong>.</div></div></div>'
+    +'<div class="iaqrow">'
+    +'<button class="iaq" onclick="qC(\'Resumí mis apuntes de esta clase\')">Resumir</button>'
+    +'<button class="iaq" onclick="qC(\'Explicame los conceptos clave\')">Conceptos</button>'
+    +'<button class="iaq" onclick="qC(\'Haceme 5 preguntas de práctica\')">Ejercicios</button>'
+    +'<button class="iaq" onclick="qC(\'¿Qué fórmulas debo saber?\')">Fórmulas</button>'
+    +'</div>'
+    +'<div class="iainrow"><input class="iainp" id="cInp" placeholder="Preguntá sobre esta clase..." onkeydown="if(event.key===\'Enter\')sClase()"><button class="iasnd" onclick="sClase()">➤</button></div>'
+    +'</div>';
+}
+
+function abrirClase(mid,cid){
+  S.matActiva=mid; S.claseActiva=cid; save();
+  renderDet();
+  setTimeout(function(){ var ed=document.getElementById('editor'); if(ed) ed.focus(); },80);
+}
+
+function addClase(){
+  var t=document.getElementById('cTit').value.trim(); if(!t){toast('Escribí un título');return;}
+  if(!S.matActiva){toast('Seleccioná una materia');return;}
+  var fec=document.getElementById('cFec').value;
+  var tags=document.getElementById('cTag').value.split(',').map(function(x){return x.trim();}).filter(Boolean);
+  var id='c_'+Date.now();
+  if(!S.clases[S.matActiva]) S.clases[S.matActiva]=[];
+  S.clases[S.matActiva].push({id:id,titulo:t,fecha:fec,tags:tags});
+  S.claseActiva=id;
+  save(); cm('clase');
+  document.getElementById('cTit').value=''; document.getElementById('cTag').value='';
+  renderDet(); renderStats(); toast('Clase agregada ✓');
+}
+
+function delClase(mid,cid){
+  if(!confirm('¿Eliminar esta clase y sus apuntes?')) return;
+  S.clases[mid]=(S.clases[mid]||[]).filter(function(c){return c.id!==cid;});
+  delete S.apuntes[mid+'_'+cid]; delete S.editorCfg[mid+'_'+cid];
+  if(S.claseActiva===cid) S.claseActiva=null;
+  save(); renderDet(); renderStats(); toast('Clase eliminada');
+}
+
+// ══ EDITOR ══
+function autoSave(key){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  S.apuntes[key]=ed.innerHTML; save();
+  var s=document.getElementById('ss');
+  if(s) s.textContent='Guardado ✓ '+new Date().toLocaleTimeString('es-AR');
+  renderStats();
+}
+
+function saveCfg(key){ if(!S.editorCfg[key]) S.editorCfg[key]={}; save(); }
+
+function chColor(v,key){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  var sel=window.getSelection();
+  if(sel&&sel.toString().length>0){ document.execCommand('foreColor',false,v); }
+  else { ed.style.color=v; }
+  saveCfg(key); S.editorCfg[key].color=v; save();
+}
+
+function chBg(v,key){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  ed.style.background=v; saveCfg(key); S.editorCfg[key].bg=v; save();
+}
+
+function chFont(v,key){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  ed.style.fontFamily=v; saveCfg(key); S.editorCfg[key].font=v; save();
+}
+
+function chSize(v,key){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  ed.style.fontSize=v; saveCfg(key); S.editorCfg[key].size=v; save();
+}
+
+function fmt(cmd){ document.execCommand(cmd,false,null); }
+
+function ins(txt){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  ed.focus(); document.execCommand('insertText',false,txt);
+}
+
+function copiarEd(){
+  var ed=document.getElementById('editor'); if(!ed) return;
+  navigator.clipboard.writeText(ed.innerText).then(function(){toast('Copiado ✓');});
+}
+
+function limpiarEd(key){
+  if(!confirm('¿Limpiar este apunte?')) return;
+  var ed=document.getElementById('editor'); if(!ed) return;
+  ed.innerHTML=''; autoSave(key);
+}
+
+// ══ IMÁGENES ══
+function insertImg(){ var i=document.getElementById('imgInp'); if(i) i.click(); }
+
+function onImg(inp,key){
+  var file=inp.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var ed=document.getElementById('editor'); if(!ed) return;
+    var img=document.createElement('img');
+    img.src=e.target.result;
+    img.style.cssText='max-width:100%;border-radius:8px;margin:8px 0;display:block;cursor:pointer';
+    img.onclick=function(){editImg(this,key);};
+    var sel=window.getSelection();
+    if(sel&&sel.rangeCount>0){
+      var r=sel.getRangeAt(0); r.collapse(false); r.insertNode(img);
+      r.setStartAfter(img); r.collapse(true); sel.removeAllRanges(); sel.addRange(r);
+    } else { ed.appendChild(img); }
+    autoSave(key); toast('Imagen insertada ✓');
+  };
+  reader.readAsDataURL(file); inp.value='';
+}
+
+function onPaste(e,key){
+  var items=(e.clipboardData||e.originalEvent.clipboardData).items;
+  for(var i=0;i<items.length;i++){
+    if(items[i].type.indexOf('image')!==-1){
+      e.preventDefault();
+      var file=items[i].getAsFile();
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        var ed=document.getElementById('editor'); if(!ed) return;
+        var img='<img src="'+ev.target.result+'" style="max-width:100%;border-radius:8px;margin:8px 0;display:block;" onclick="editImg(this)">';
+        document.execCommand('insertHTML',false,img);
+        autoSave(key); toast('Imagen pegada ✓');
+      };
+      reader.readAsDataURL(file); return;
+    }
+  }
+  setTimeout(function(){autoSave(key);},50);
+}
+
+function editImg(img,key){
+  var a=prompt('¿Qué querés hacer?\n1 — Cambiar tamaño\n2 — Eliminar');
+  if(a==='1'){
+    var w=prompt('Ancho (ej: 400px o 80%):','100%');
+    if(w){img.style.width=w;img.style.maxWidth='100%';}
+    if(key) autoSave(key);
+  } else if(a==='2'){
+    img.remove(); if(key) autoSave(key); toast('Imagen eliminada');
+  }
+}
+
+// ══ APUNTES VIEW ══
+function renderApuntes(){
+  var c=document.getElementById('aptList'); if(!c) return;
+  var keys=Object.keys(S.apuntes).filter(function(k){return S.apuntes[k]&&S.apuntes[k].trim();});
+  if(!keys.length){ c.innerHTML='<div class="empty"><div class="emptyic">✎</div><p>Todavía no escribiste apuntes.</p></div>'; return; }
+  c.innerHTML=keys.map(function(k){
+    var segs=k.split('_'); var cid=segs[segs.length-1]; var mid=segs.slice(0,segs.length-1).join('_');
+    var mat=S.materias.find(function(m){return m.id===mid;});
+    var cl=(S.clases[mid]||[]).find(function(c){return c.id===cid;});
+    if(!mat||!cl) return '';
+    var div=document.createElement('div'); div.innerHTML=S.apuntes[k];
+    var prev=div.innerText.slice(0,100)+'...';
+    return '<div class="arow" onclick="abrirClase(\''+mid+'\',\''+cid+'\')">'+
+      '<div style="font-size:22px;flex-shrink:0">'+mat.icon+'</div>'+
+      '<div><div style="font-size:13px;font-weight:500">'+cl.titulo+'</div>'+
+      '<div style="font-size:11px;color:var(--text2)">'+mat.nombre+' · '+mat.anio+'</div>'+
+      '<div style="font-size:11px;color:var(--text3);margin-top:3px">'+prev+'</div></div>'+
+      '</div>';
+  }).filter(Boolean).join('');
+}
+
+// ══ IA ══
+function qG(m){ var i=document.getElementById('gInp'); if(i){i.value=m;sGlobal();} }
+function qC(m){ var i=document.getElementById('cInp'); if(i){i.value=m;sClase();} }
+
+function sGlobal(){
+  var inp=document.getElementById('gInp'), chat=document.getElementById('gChat');
+  if(!inp||!chat) return;
+  var msg=inp.value.trim(); if(!msg) return;
+  inp.value='';
+  addMsg(chat,'me',msg);
+  var typ=addTyping(chat);
+  callIA(msg,null,'').then(function(r){typ.remove();addMsg(chat,'bot',r);chat.scrollTop=9999;});
+  chat.scrollTop=9999;
+}
+
+function sClase(){
+  var inp=document.getElementById('cInp'), chat=document.getElementById('cChat');
+  if(!inp||!chat) return;
+  var msg=inp.value.trim(); if(!msg) return;
+  inp.value='';
+  var ed=document.getElementById('editor');
+  var txt=ed?ed.innerText:'';
+  addMsg(chat,'me',msg);
+  var typ=addTyping(chat);
+  callIA(msg,S.matActiva,txt).then(function(r){typ.remove();addMsg(chat,'bot',r);chat.scrollTop=9999;});
+  chat.scrollTop=9999;
+}
+
+function addMsg(chat,who,text){
+  var d=document.createElement('div'); d.className='iamsg '+who;
+  d.innerHTML='<div class="iaav '+who+'">'+(who==='bot'?'✦':'yo')+'</div><div class="iabub">'+text+'</div>';
+  chat.appendChild(d); return d;
+}
+
+function addTyping(chat){
+  var d=document.createElement('div'); d.className='iamsg';
+  d.innerHTML='<div class="iaav bot">✦</div><div class="iabub"><div class="iatyp"><span></span><span></span><span></span></div></div>';
+  chat.appendChild(d); chat.scrollTop=9999; return d;
+}
+
+async function callIA(msg,matId,apunte){
+  var key=S.groqKey||'';
+  if(!key) return '⚠️ Configurá tu Groq API key en ⚙ Configuración para activar la IA. Es gratis en console.groq.com 🔑';
+  var mat=matId?S.materias.find(function(m){return m.id===matId;}):null;
+  var ctx='Sos un asistente de estudio universitario, amigable y claro. Respondés en español argentino.';
+  if(mat) ctx+=' La materia es "'+mat.nombre+'" del '+mat.anio+'.';
+  if(apunte&&apunte.trim()) ctx+=' Los apuntes del alumno son:\n"""\n'+apunte.slice(0,1500)+'\n"""';
+  ctx+=' Respondé de forma concisa con ejemplos cuando sea útil.';
+  try{
+    var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1000,messages:[{role:'system',content:ctx},{role:'user',content:msg}]})
+    });
+    var data=await res.json();
+    if(data.error) return '⚠️ Error: '+data.error.message;
+    return(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'Sin respuesta.';
+  }catch(e){ return '⚠️ Error de conexión. Revisá tu internet.'; }
+}
+
+// ══ CALENDARIO ══
+function renderCal(){
+  var c=document.getElementById('calC'); if(!c) return;
+  var hoy=new Date(), anio=calDate.getFullYear(), mes=calDate.getMonth();
+  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var dias=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var tl={parcial:'Parcial',final:'Final',tp:'TP',recuperatorio:'Recup.',otro:'Evento'};
+  var primero=new Date(anio,mes,1), ultimo=new Date(anio,mes+1,0);
+  var cells=[];
+  for(var i=0;i<primero.getDay();i++) cells.push({f:new Date(anio,mes,i-primero.getDay()+1),o:true});
+  for(var i=1;i<=ultimo.getDate();i++) cells.push({f:new Date(anio,mes,i),o:false});
+  while(cells.length%7!==0) cells.push({f:new Date(cells[cells.length-1].f.getTime()+86400000),o:true});
+  function fiso(d){return d.toISOString().split('T')[0];}
+  function esHoy(d){return fiso(d)===fiso(hoy);}
+  var gridH=dias.map(function(d){return '<div class="caldn">'+d+'</div>';}).join('');
+  gridH+=cells.map(function(cel){
+    var evs=S.parciales.filter(function(p){return p.fecha===fiso(cel.f);});
+    var pills=evs.slice(0,2).map(function(p){
+      var mat=S.materias.find(function(m){return m.id===p.materiaId;});
+      return '<span class="calpill '+p.tipo+'">'+(tl[p.tipo]||p.tipo)+': '+(mat?mat.nombre.split(' ')[0]:p.tipo)+'</span>';
+    }).join('');
+    var mas=evs.length>2?'<span style="font-size:9px;color:var(--text3)">+'+(evs.length-2)+'</span>':'';
+    var cls='calcell'+(cel.o?' other':'')+(esHoy(cel.f)?' today':'');
+    return '<div class="'+cls+'" onclick="clickDia(\''+fiso(cel.f)+'\')"><span class="calnum">'+cel.f.getDate()+'</span>'+pills+mas+'</div>';
+  }).join('');
+  var proximos=S.parciales.map(function(p){return Object.assign({},p,{diff:Math.ceil((new Date(p.fecha+'T00:00:00')-hoy)/86400000)});})
+    .filter(function(p){return p.diff>=-1;}).sort(function(a,b){return a.diff-b.diff;}).slice(0,8);
+  var proxH=proximos.length?proximos.map(function(p){
+    var mat=S.materias.find(function(m){return m.id===p.materiaId;});
+    var urg=p.diff<=3?'urg':p.diff<=7?'warn':'';
+    var dt=p.diff<0?'ayer':p.diff===0?'hoy':p.diff===1?'mañana':p.diff+'d';
+    var dc=p.diff<=3?'urg':p.diff<=7?'warn':'ok';
+    return '<div class="proxitem '+urg+'"><div class="proxdays '+dc+'">'+dt+'</div>'
+      +'<div class="proxinfo"><div class="proxname">'+(mat?mat.icon+' '+mat.nombre:'—')+' <span class="tbadge '+p.tipo+'">'+(tl[p.tipo]||p.tipo)+'</span></div>'
+      +'<div class="proxmeta">'+(p.desc||'')+' '+(p.hora?'· '+p.hora:'')+' '+(p.aula?'· '+p.aula:'')+'</div>'
+      +'<div class="proxmeta">'+new Date(p.fecha+'T00:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})+'</div></div>'
+      +'<button class="proxdel" onclick="delEv(\''+p.id+'\')">✕</button></div>';
+  }).join(''):'<div class="empty"><div class="emptyic">✓</div><p>No hay eventos próximos.</p></div>';
+  var counts={};
+  S.parciales.forEach(function(p){counts[p.tipo]=(counts[p.tipo]||0)+1;});
+  var resH=Object.entries(tl).map(function(e){
+    return '<div class="resrow"><span class="tbadge '+e[0]+'">'+e[1]+'</span><span class="resn">'+(counts[e[0]]||0)+'</span></div>';
+  }).join('');
+  c.innerHTML='<div class="calnav"><div class="calbtns">'
+    +'<button class="calbtn" onclick="calNav(-1)">‹</button>'
+    +'<span class="calml">'+meses[mes]+' '+anio+'</span>'
+    +'<button class="calbtn" onclick="calNav(1)">›</button>'
+    +'<button class="calbtn" onclick="calHoy()" style="width:auto;padding:0 8px;font-size:11px">Hoy</button>'
+    +'</div><button class="btn pri sm" onclick="om(\'parcial\')">+ Evento</button></div>'
+    +'<div class="calgrid">'+gridH+'</div>'
+    +'<div class="calbot">'
+    +'<div><div class="stitle">Próximos</div><div class="proxlist">'+proxH+'</div></div>'
+    +'<div><div class="stitle">Resumen</div><div class="restipo">'+resH+'</div></div>'
+    +'</div>';
+  renderStats();
+}
+
+function calNav(d){calDate.setMonth(calDate.getMonth()+d);renderCal();}
+function calHoy(){calDate=new Date();renderCal();}
+function clickDia(iso){var f=document.getElementById('pFec');if(f)f.value=iso;om('parcial');}
+
+function addParcial(){
+  var tipo=document.getElementById('pTipo').value;
+  var matId=document.getElementById('pMat').value;
+  var desc=document.getElementById('pDesc').value.trim();
+  var fecha=document.getElementById('pFec').value;
+  var hora=document.getElementById('pHor').value;
+  var aula=document.getElementById('pAul').value.trim();
+  if(!fecha){toast('Elegí una fecha');return;}
+  S.parciales.push({id:'p_'+Date.now(),tipo:tipo,materiaId:matId,desc:desc,fecha:fecha,hora:hora,aula:aula});
+  save();cm('parcial');
+  document.getElementById('pDesc').value='';document.getElementById('pHor').value='';document.getElementById('pAul').value='';
+  renderCal();toast('Evento guardado ✓');
+}
+
+function delEv(id){
+  if(!confirm('¿Eliminar este evento?')) return;
+  S.parciales=S.parciales.filter(function(p){return p.id!==id;});
+  save();renderCal();toast('Eliminado');
+}
+
+// ══ CONFIG ══
+function renderCfg(){
+  st('cfgNombre',S.nombre); st('cfgCarrera',S.carrera||'No configurada');
+  st('cfgAnios',S.anios.join(' · '));
+  st('cfgTema',S.tema==='dark'?'Oscuro':'Claro');
+  var ki=document.getElementById('keyInp'); if(ki&&S.groqKey) ki.value=S.groqKey;
+  var ks=document.getElementById('keyStatus');
+  if(ks){ ks.textContent=S.groqKey?'✓ Key configurada — IA activa':'Sin key — configurá tu Groq key para activar la IA.'; ks.style.color=S.groqKey?'var(--green)':'var(--amber)'; }
+}
+
+function editNombre(){ var n=prompt('Tu nombre:',S.nombre); if(n&&n.trim()){S.nombre=n.trim();save();renderHome();renderCfg();toast('Nombre guardado ✓');} }
+function editCarrera(){ var n=prompt('Nombre de tu carrera:',S.carrera||''); if(n!==null){S.carrera=n.trim()||S.carrera;save();renderHome();renderCfg();toast('Carrera actualizada ✓');} }
+
+function saveKey(){
+  var v=document.getElementById('keyInp').value.trim();
+  if(!v){toast('Pegá tu API key primero');return;}
+  if(!v.startsWith('gsk_')){toast('La key de Groq empieza con gsk_');return;}
+  S.groqKey=v;save();renderCfg();toast('Key guardada ✓ — IA activada');
+}
+
+async function testKey(){
+  if(!S.groqKey){toast('Guardá la key primero');return;}
+  var ks=document.getElementById('keyStatus');
+  if(ks){ks.textContent='Probando...';ks.style.color='var(--text2)';}
+  var r=await callIA('Respondé solo "OK".',null,'');
+  if(ks){
+    if(r.includes('⚠️')){ks.textContent='✕ Error: '+r;ks.style.color='var(--red)';}
+    else{ks.textContent='✓ Conexión exitosa!';ks.style.color='var(--green)';}
+  }
+}
+
+function copiarAnio(){
+  var idx=S.anios.indexOf(S.anioActivo); if(idx<=0){toast('No hay año anterior');return;}
+  var ant=S.anios[idx-1];
+  var mats=S.materias.filter(function(m){return m.anio===ant;});
+  if(!mats.length){toast('El año anterior no tiene materias');return;}
+  if(!confirm('¿Copiar '+mats.length+' materias de "'+ant+'" a "'+S.anioActivo+'"?')) return;
+  mats.forEach(function(m){ S.materias.push(Object.assign({},m,{id:'m_'+Date.now()+'_'+Math.random().toString(36).slice(2),anio:S.anioActivo})); });
+  save();renderStats();go('materias');toast(mats.length+' materias copiadas ✓');
+}
+
+function borrarTodo(){
+  if(!confirm('¿Borrar TODO? No se puede deshacer.')) return;
+  S.materias=[];S.clases={};S.apuntes={};S.parciales=[];S.editorCfg={};
+  save();renderStats();go('home');toast('Datos borrados');
+}
+
+// ══ EXPORT ══
+function exportar(){
+  var txt='STUDYBOX — Exportación\n'+'='.repeat(36)+'\n\n';
+  S.materias.forEach(function(m){
+    txt+='\n## '+m.nombre+' ('+m.anio+')\n'+'-'.repeat(28)+'\n';
+    (S.clases[m.id]||[]).forEach(function(cl){
+      txt+='\n### '+cl.titulo+(cl.fecha?' — '+cl.fecha:'')+'\n';
+      var key=m.id+'_'+cl.id;
+      if(S.apuntes[key]){var d=document.createElement('div');d.innerHTML=S.apuntes[key];txt+=d.innerText+'\n';}
+    });
+  });
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download='studybox_apuntes.txt'; a.click(); toast('Exportado ✓');
+}
+
+// ══ MODALES ══
+function om(id){
+  var ov=document.getElementById('ov-'+id); if(!ov) return;
+  ov.classList.add('on');
+  if(id==='mat'){
+    var sel=document.getElementById('mAnio');
+    if(sel) sel.innerHTML=S.anios.map(function(a){return '<option value="'+a+'"'+(a===S.anioActivo?' selected':'')+'>'+a+'</option>';}).join('');
+  }
+  if(id==='clase'){var d=document.getElementById('cFec');if(d)d.value=new Date().toISOString().split('T')[0];}
+  if(id==='parcial'){
+    var sel=document.getElementById('pMat');
+    if(sel){ var mis=S.materias.filter(function(m){return m.anio===S.anioActivo;}); sel.innerHTML=mis.map(function(m){return '<option value="'+m.id+'">'+m.icon+' '+m.nombre+'</option>';}).join(''); }
+    var fd=document.getElementById('pFec');if(fd&&!fd.value)fd.value=new Date().toISOString().split('T')[0];
+  }
+}
+function cm(id){var ov=document.getElementById('ov-'+id);if(ov)ov.classList.remove('on');}
+document.querySelectorAll('.ov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('on');});});
+
+// ══ TOAST ══
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},2500);
+}
+</script>
+</body>
+</html>
